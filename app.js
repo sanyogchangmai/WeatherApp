@@ -5,7 +5,8 @@ const ejs = require("ejs");
 const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.set("view engine","ejs");
-// app.use(bodyParser.urlencoded({extended:true}));
+
+app.use(express.static('public'));
 
 app.get("/",function(req,res){
     res.render("index");
@@ -26,7 +27,8 @@ app.post("/",function(req,res){
             console.log(weatherData);
 
             const temp = weatherData.main.temp;
-            const feel = weatherData.main.feels_like;
+            const minTemp = weatherData.main.temp_min;
+            const maxTemp = weatherData.main.temp_max;
             const description = weatherData.weather[0].description;
             const img = weatherData.weather[0].icon;
             const imgUrl = "http://openweathermap.org/img/wn/" + img + "@2x.png";
@@ -35,15 +37,22 @@ app.post("/",function(req,res){
             const visibility = weatherData.visibility;
             const wind = weatherData.wind.speed;
 
-            res.write("<h1>The weather is currently" + description + "</h1>");      
-            res.write("<h1>The temperature in "+ query+ " is " + temp + "&#8451</h1>");
-            res.write("<h1> But it feels like "+ feel +"&#8451</h1>");
-            res.write("<center><img src="+ imgUrl +"></center>");
-            res.write("<h1> Humidity is "+ humidity +"</h1>");
-            res.write("<h1> Air Pressure is "+ pressure +"</h1>");
-            res.write("<h1> Visibility is "+ visibility +"</h1>");
-            res.write("<h1> Wind speed is "+ wind +"</h1>");          
-            res.send();
+            const city = query.charAt(0).toUpperCase() + query.slice(1);
+            const desc = description.charAt(0).toUpperCase() + description.slice(1);
+
+            res.render("details",
+            {
+             cityname: city,
+             temperature: temp,    
+             mintemp: minTemp,
+             maxtemp: maxTemp,
+             description: desc,
+             image : imgUrl,
+             humidity: humidity,
+             pressure: pressure,
+             visibility: visibility,
+             wind: wind
+            });
         })
     });
 
